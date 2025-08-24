@@ -7,8 +7,6 @@ function socketHandler(io) {
 
     socket.on("message", (msg) => {
       console.log(`📩 Client (${socket.id}) says:`, msg);
-
-
       socket.emit("message", `Server received: ${msg}`);
     });
 
