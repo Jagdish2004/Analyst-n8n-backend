@@ -1,8 +1,8 @@
 const client = require("../connectDb");
 
 const fetchHistory = async (req, res) => {
-    const sqlQuery = 'SELECT DISTINCT ON (session_id) session_id, message FROM public.n8n_chat_histories;';
-    
+    const sqlQuery = 'SELECT DISTINCT ON (session_id) session_id FROM public.n8n_chat_histories LIMIT 10;';
+  
     try {
         let result = await client.query(sqlQuery);
         result = result.rows;
@@ -20,7 +20,7 @@ const fetchChatHistory = async (req, res) => {
   let sessionId = req.params.sessionId;
 
   // Use parameterized query to prevent SQL injection
-  const sqlQuery = `SELECT * FROM public.n8n_chat_histories WHERE session_id = $1;`;
+  const sqlQuery = `SELECT * FROM public.n8n_chat_histories WHERE session_id = $1 LIMIT 5;`;
 
   try {
     let result = await client.query(sqlQuery, [sessionId]);
