@@ -1,12 +1,12 @@
 const client = require("../connectDb");
 
 const fetchHistory = async (req, res) => {
-    const sqlQuery = 'SELECT  session_id, title FROM public.chat_sessions_2 LIMIT 10;';
+    const sqlQuery = 'SELECT * FROM public.chat_sessions_2 ORDER BY updated_at DESC;';
   
     try {
         let result = await client.query(sqlQuery);
         result = result.rows;
-        console.log("✅ Fetched history:", result);
+
         return res.json(result);
 
       }catch (error) {
@@ -20,7 +20,7 @@ const fetchChatHistory = async (req, res) => {
   let sessionId = req.params.sessionId;
 
   // Use parameterized query to prevent SQL injection
-  const sqlQuery = `SELECT * FROM public.chat_histories_2 WHERE session_id = $1 LIMIT 5;`;
+  const sqlQuery = `SELECT * FROM public.chat_histories_2 WHERE session_id = $1 ORDER BY created_at ASC;`;
 
   try {
     let result = await client.query(sqlQuery, [sessionId]);
@@ -47,10 +47,30 @@ const createSession = async (req, res) => {
 }
 
 const newChat = async (req, res) => {
-  const { sessionId } = req.params;
-  // console.log("new chat called");
-//i will letter going to wite logic
-  return res.json({ message: "hello from serer" });
-}
+  try {
+    const { sessionId } = req.params;
+    const { message } = req.body;
+
+    const responseFromN8N = await fetch(process.env.N8N_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        session_id: sessionId,
+      }),
+    });
+
+    const data = await responseFromN8N.json();
+
+    // N8N returns an array: [ { output: "..." } ]
+    const reply = data[0]?.output || "No response from N8N";
+
+    // ✅ Send clean format to frontend
+    return res.json({ message: reply });
+  } catch (error) {
+    console.error("Error in newChat:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
 
 module.exports = { fetchHistory, fetchChatHistory, createSession, newChat };
