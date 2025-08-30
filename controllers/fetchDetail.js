@@ -63,7 +63,7 @@ const newChat = async (req, res) => {
     const data = await responseFromN8N.json();
 
     // N8N returns an array: [ { output: "..." } ]
-    const reply = data[0]?.output || "No response from N8N";
+    const reply = data[0]?.output || "Owner had stopped the N8N local server.contact him for trials.";
 
     // ✅ Send clean format to frontend
     return res.json({ message: reply });
