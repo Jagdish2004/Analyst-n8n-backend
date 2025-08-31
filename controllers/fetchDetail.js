@@ -69,6 +69,7 @@ const newChat = async (req, res) => {
     return res.json({ message: reply });
   } catch (error) {
     console.error("Error in newChat:", error);
+     return res.json({ message: "Owner had stopped the N8N local server.contact him for trials." });
     res.status(500).json({ error: "Something went wrong" });
   }
 };
